@@ -1,7 +1,8 @@
 from enum import IntEnum
-
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, Column, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import UUIDType
+import uuid
 
 
 class ConnectionTypes(IntEnum):
@@ -23,4 +24,15 @@ NAMING_CONVENTION = {
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
     "pk": "pk_%(table_name)s",
 }
-Base = declarative_base(metadata=MetaData(naming_convention=NAMING_CONVENTION))
+
+
+# Base = declarative_base(metadata=MetaData(naming_convention=NAMING_CONVENTION))
+class Base(declarative_base):
+    metadata = MetaData(naming_convention=NAMING_CONVENTION)
+    __abstract__ = True
+
+    id = Column(UUIDType(binary=False), primary_key=True, default=str(uuid.uuid4()))
+    created_at = Column(DateTime, default=func.current_timestamp())
+    updated_at = Column(DateTime,
+                        default=func.current_timestamp(),
+                        onupdate=func.current_timestamp())
